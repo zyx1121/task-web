@@ -1,0 +1,22 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "task-web",
+  "version": "0.1.0",
+  "description": "Personal web tools and research demos with fixed zyx corners and a focused workspace.",
+  "author": { "name": "zyx1121", "url": "https://github.com/zyx1121" },
+  "homepage": "https://github.com/zyx1121/task-web",
+  "repository": "https://github.com/zyx1121/task-web",
+  "license": "MIT",
+  "keywords": ["template", "react", "shadcn", "codex", "claude-code"],
+  "extensions": {
+    "com.openai": {
+      "interface": {
+        "displayName": "Task Web",
+        "shortDescription": "Personal web tools in the zyx style",
+        "developerName": "zyx1121",
+        "category": "Developer Tools",
+        "capabilities": ["Read", "Write"]
+      }
+    }
+  }
+}
