@@ -1,0 +1,21 @@
+name: Check
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: skills/task-web/assets/starter/package-lock.json
+      - run: npm run check
+      - run: git diff --exit-code -- .claude-plugin/plugin.json
+      - run: node skills/task-web/scripts/create.mjs "$RUNNER_TEMP/task-web-smoke" --title "Research demo" --lang zh-TW
+      - run: npm ci && npm run build
+        working-directory: ${{ runner.temp }}/task-web-smoke

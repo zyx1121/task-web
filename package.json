@@ -1,0 +1,12 @@
+{
+  "name": "@zyx1121/task-web",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "manifests": "node scripts/manifests.mjs",
+    "test": "node --test tests/*.test.mjs",
+    "check": "npm run manifests && npm test"
+  }
+}

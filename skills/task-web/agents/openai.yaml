@@ -1,0 +1,6 @@
+interface:
+  display_name: "Task Web"
+  short_description: "Personal web tools with the zyx task template"
+  default_prompt: "Use $task-web to build a focused personal web demo in the zyx style."
+policy:
+  allow_implicit_invocation: true
