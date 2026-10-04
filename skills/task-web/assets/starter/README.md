@@ -11,7 +11,10 @@ On your configured development host:
 npm ci
 npm run dev -- --host 127.0.0.1 --port 5173
 npm run build
+npm run audit -- http://127.0.0.1:4173/   # after npm run preview
 ```
+
+The audit needs a Playwright browser once per host: `npx playwright install webkit`.
 
 Choose a dedicated port on a shared host. Serve dist as static files. Follow the
 parent workspace's deployment workflow; this starter does not deploy itself.

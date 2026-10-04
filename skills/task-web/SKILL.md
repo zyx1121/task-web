@@ -46,11 +46,25 @@ silently replace an existing app's theme.
 - Use theme tokens and stock shadcn base-nova components. Add only needed primitives
   with the shadcn CLI; do not edit components/ui. Base UI uses render, not asChild.
 - Default dark, with light available. Keep fonts Inter, Noto Sans JP/TC and Geist
-  Mono for code. Use the current registry type scale, including 16px corner text.
-  Dark/light preference in an existing app takes precedence.
-- Keep UI chrome grayscale. Colors may encode actual data. Show concise states
-  for the task; remove placeholder copy when real content exists. Tooltip bubbles
-  stay opaque; floating panels use the registry's transparent 12px blur.
+  Mono for code. Only 80/24/16/14px are legal (display, titles, body and controls,
+  captions), at weight 400, or 500 for titles and headings. Dark/light preference
+  in an existing app takes precedence.
+- Keep UI chrome grayscale. Colors may encode actual data. Tooltip bubbles stay
+  opaque; floating panels use the registry's transparent 12px blur.
+- Write copy for the person using the page, not for the developer. Keep the title
+  and the labels the task needs. Leave out instructions on how to use the page,
+  explanations of a state, "results will appear here" and notes about the build.
+  An empty state is a short label or nothing at all.
+
+## Verify
+
+Build, serve it on the development host, then run `npm run audit -- <url>` from
+the project. It opens the page in WebKit at 1280, 390 and 320px, in dark and
+light, and fails on an illegal font size or weight, a missing corner, sideways
+scroll or a light first paint. It warns about copy that reads like a note to the
+developer. A failed audit is not done. Report what the audit printed.
+[evals/scenarios.md](../../evals/scenarios.md) in the plugin repository holds the
+fixed scenarios used to judge changes to this skill.
 
 The skill is automatically discoverable in both hosts, but it is not an always-on
 instruction or permission to redesign unrelated sites. It works without FDE. A

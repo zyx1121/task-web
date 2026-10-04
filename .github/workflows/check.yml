@@ -19,3 +19,20 @@ jobs:
       - run: node skills/task-web/scripts/create.mjs "$RUNNER_TEMP/task-web-smoke" --title "Research demo" --lang zh-TW
       - run: npm ci && npm run build
         working-directory: ${{ runner.temp }}/task-web-smoke
+      - run: npx playwright install --with-deps webkit
+        working-directory: ${{ runner.temp }}/task-web-smoke
+      - name: Audit the rendered starter
+        working-directory: ${{ runner.temp }}/task-web-smoke
+        run: |
+          npx vite preview --host 127.0.0.1 --port 4173 --strictPort &
+          for i in $(seq 30); do curl -sf http://127.0.0.1:4173/ >/dev/null && break; sleep 1; done
+          npm run audit -- http://127.0.0.1:4173/
+      - name: The audit catches an off-contract page
+        working-directory: ${{ runner.temp }}/task-web-smoke
+        run: |
+          if node scripts/audit.mjs "file://$GITHUB_WORKSPACE/tests/fixtures/off-contract.html" > out.txt 2>&1; then
+            cat out.txt; echo "audit passed an off-contract page"; exit 1
+          fi
+          for check in "FAIL dark-first" "FAIL type-scale" "FAIL corners" "FAIL overflow" "WARN copy"; do
+            grep -q "$check" out.txt || { cat out.txt; echo "missing: $check"; exit 1; }
+          done
