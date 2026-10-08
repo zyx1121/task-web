@@ -33,6 +33,6 @@ jobs:
           if node scripts/audit.mjs "file://$GITHUB_WORKSPACE/tests/fixtures/off-contract.html" > out.txt 2>&1; then
             cat out.txt; echo "audit passed an off-contract page"; exit 1
           fi
-          for check in "FAIL dark-first" "FAIL type-scale" "FAIL corners" "FAIL overflow" "WARN copy"; do
+          for check in "FAIL dark-first" "FAIL type-scale" "FAIL corners" "FAIL overflow" "FAIL copy" "placeholder suggests a value" "button is not a short verb"; do
             grep -q "$check" out.txt || { cat out.txt; echo "missing: $check"; exit 1; }
           done

@@ -42,11 +42,12 @@ Prompt: "Add a status page to this project." Provide a fixture project with its 
 
 Prompt: "A tool that uploads a CSV and shows loading, empty and error states."
 
-- Audit passes, with no copy warnings.
+- Audit passes, including the copy check.
 - Controls in one row are the same height.
 - Animations sit behind `motion-safe:`; nothing moves with reduced motion.
 - No edits under `src/components/ui/`.
 - Each state is a short label, not a paragraph explaining the state.
+- Buttons are short verbs and the upload input has no example in its placeholder.
 
 ## 5. Chinese interface
 

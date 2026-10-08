@@ -54,15 +54,20 @@ silently replace an existing app's theme.
 - Write copy for the person using the page, not for the developer. Keep the title
   and the labels the task needs. Leave out instructions on how to use the page,
   explanations of a state, "results will appear here" and notes about the build.
-  An empty state is a short label or nothing at all.
+  An empty state is a short label or nothing at all. Buttons are a verb or two
+  (登入, not 以實驗室帳號登入). Inputs carry a label; a placeholder never suggests
+  a value. Show what the person reads, never internal codes, ids or field keys.
+- When the page cannot handle a real input, fix the tool or system behind it, not
+  the page around it.
 
 ## Verify
 
 Build, serve it on the development host, then run `npm run audit -- <url>` from
 the project. It opens the page in WebKit at 1280, 390 and 320px, in dark and
 light, and fails on an illegal font size or weight, a missing corner, sideways
-scroll or a light first paint. It warns about copy that reads like a note to the
-developer. A failed audit is not done. Report what the audit printed.
+scroll or a light first paint, and on copy that reads like a note to the developer, a
+placeholder that suggests a value or a button longer than a short verb. A failed
+audit is not done. Report what the audit printed.
 [evals/scenarios.md](../../evals/scenarios.md) in the plugin repository holds the
 fixed scenarios used to judge changes to this skill.
 

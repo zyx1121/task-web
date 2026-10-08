@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Measure a rendered page against the zyx contract (ui.zyx.tw DESIGN.md):
-// type scale, four corners, no sideways scroll and dark first. Copy that reads
-// like a note to the developer is reported as a warning.
+// type scale, four corners, no sideways scroll, dark first and copy written for
+// the person using the page.
 import { parseArgs } from 'node:util';
 
 const usage = 'npm run audit -- <url> [--browser webkit|chromium] [--home https://www.zyx.tw]';
@@ -16,9 +16,16 @@ const NOTES = [
   /\breplace (?:this|me)\b/i,
   /(?:會|將)(?:顯示|出現)在(?:這裡|此處)/,
   /(?:這裡|此處)(?:會|將)/,
+  // Instructions on how to use the page.
+  /\b(?:click (?:here|the)|you can|feel free to)\b/i,
+  /^(?:請先|請點|點擊|點選|按下)|(?:你|您)可以/,
 ];
+// Placeholders name nothing; they must not suggest a value.
+const SUGGESTION = /^(?:e\.g\.|eg[:.]|ex[:.]|such as|for example)|例如|比如|範例[:：]/i;
+// Buttons are a verb or two.
+const BUTTON = { words: 3, cjk: 6 };
 
-function measure({ sizes, weights, inset, notes }) {
+function measure({ sizes, weights, inset, notes, suggestion, button }) {
   const visible = element => {
     const style = getComputedStyle(element);
     const box = element.getBoundingClientRect();
@@ -48,6 +55,15 @@ function measure({ sizes, weights, inset, notes }) {
       if (!type.has(key)) type.set(key, snippet(text));
     }
     for (const note of notes) if (new RegExp(note.source, note.flags).test(text)) copy.add(snippet(text));
+    const hint = element.getAttribute('placeholder');
+    if (field && hint && new RegExp(suggestion.source, suggestion.flags).test(hint.trim())) copy.add(`placeholder suggests a value: ${snippet(hint)}`);
+  }
+  for (const element of document.body.querySelectorAll('button, [role=button], a[data-slot=button]')) {
+    if (!visible(element)) continue;
+    const label = element.textContent.replace(/\s+/g, ' ').trim();
+    const cjk = (label.match(/[\u3400-\u9fff]/g) ?? []).length;
+    const words = label.replace(/[\u3400-\u9fff]/g, ' ').split(' ').filter(Boolean).length;
+    if (cjk > button.cjk || words > button.words) copy.add(`button is not a short verb: ${snippet(label)}`);
   }
   const vw = document.documentElement.clientWidth;
   const vh = window.innerHeight;
@@ -86,7 +102,7 @@ async function audit() {
   const playwright = await import('playwright');
   const browser = await playwright[values.browser].launch();
   const failures = [];
-  const warnings = new Set();
+  const copy = new Set();
   const fail = (check, where, details) => failures.push(`FAIL ${check} @ ${where}\n${details.map(line => `  ${line}`).join('\n')}`);
   try {
     for (const viewport of VIEWPORTS) {
@@ -98,22 +114,22 @@ async function audit() {
       for (const theme of ['dark', 'light']) {
         await page.evaluate(dark => document.documentElement.classList.toggle('dark', dark), theme === 'dark');
         const where = `${size} ${theme}`;
-        const result = await page.evaluate(measure, { sizes: SIZES, weights: WEIGHTS, inset: INSET, notes: NOTES.map(note => ({ source: note.source, flags: note.flags })) });
+        const result = await page.evaluate(measure, { sizes: SIZES, weights: WEIGHTS, inset: INSET, notes: NOTES.map(note => ({ source: note.source, flags: note.flags })), suggestion: { source: SUGGESTION.source, flags: SUGGESTION.flags }, button: BUTTON });
         if (result.type.length) fail('type-scale', where, [`only ${SIZES.join('/')}px at weight ${WEIGHTS.join('/')} are legal`, ...result.type]);
         if (result.missing.length) fail('corners', where, [`no fixed element ${INSET}px in from: ${result.missing.join(', ')}`]);
         else if (result.mark !== null && new URL(result.mark).origin !== new URL(values.home, positionals[0]).origin) fail('corners', where, [`top-left links to ${result.mark}, expected ${values.home}`]);
         if (result.overflow.length) fail('overflow', where, ['page scrolls sideways; widest elements:', ...result.overflow]);
-        for (const text of result.copy) warnings.add(text);
+        for (const text of result.copy) copy.add(text);
       }
       await page.close();
     }
   } finally {
     await browser.close();
   }
+  if (copy.size) fail('copy', 'all viewports', ['write for the person using the page, not the developer', ...[...copy].map(text => `"${text}"`)]);
   for (const failure of failures) console.error(failure);
-  if (warnings.size) console.warn(`WARN copy reads like a note to the developer:\n${[...warnings].map(text => `  "${text}"`).join('\n')}`);
   if (failures.length) process.exitCode = 1;
-  else console.log(`PASS ${VIEWPORTS.length} viewports x dark/light: type scale, corners, no sideways scroll, dark first`);
+  else console.log(`PASS ${VIEWPORTS.length} viewports x dark/light: type scale, corners, no sideways scroll, dark first, copy`);
 }
 
 audit().catch(error => { console.error(error.message); process.exitCode = 1; });
