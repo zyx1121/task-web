@@ -46,7 +46,7 @@ instruction for every web task. No MCP server, hook or install-time build runs.
 | Component | Responsibility |
 |---|---|
 | Task Web | Select the personal template, scaffold source and compose the four-corner shell. |
-| [ui.zyx.tw](https://ui.zyx.tw) | Canonical theme and registry additions; stock shadcn base-nova supplies primitives. |
+| [ui.zyx.tw](https://ui.zyx.tw) | Canonical tokens and the owned Base UI components (`@zyx1121/<name>`). |
 | [FDE](https://github.com/zyx1121/fde) | Operate an existing configured workspace, synchronize and snapshot it. |
 
 Task Web and FDE can be used together or separately. The template contains
@@ -81,9 +81,9 @@ and dark themes, keyboard navigation, responsive widths and locally served fonts
 
 The registry is copied at authoring time, not loaded at runtime. See the starter's
 [design provenance](skills/task-web/assets/starter/DESIGN-SOURCE.md) for source
-versions, fonts and its theme-refresh command. The current shadcn theme importer
-has a parser incompatibility; the bundled serializer reads the same canonical
-JSON without changing the stock primitives.
+versions, fonts and its theme-refresh command. The bundled serializer turns the
+registry's `base` item into a stylesheet for Vite, where next/font is not
+available; components come from the registry unchanged.
 
 For an existing project, read the [integration guide](skills/task-web/references/integration.md).
 Reuse its providers and shell before copying components. Do not scaffold over it.

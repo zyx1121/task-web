@@ -7,8 +7,9 @@ import {
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from "@/components/ui/tooltip"
-import { cn } from "@/lib/utils"
+} from "./ui/tooltip"
+
+import { cn } from "../lib/utils"
 
 export type At = "top-left" | "top-right" | "bottom-left" | "bottom-right"
 

@@ -3,46 +3,70 @@ import { readFile, writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const source = 'https://ui.zyx.tw/r/theme.json';
+// The tokens come from the ui.zyx.tw base item; the corner fade comes from the
+// corners item, whose component this starter keeps as a portable copy.
+const registry = 'https://ui.zyx.tw/r';
+const items = ['base', 'corners'];
 const root = new URL('../', import.meta.url);
 
 function rule(selector, value) {
   if (!value || typeof value !== 'object' || Array.isArray(value)) throw new Error(`Expected an object for ${selector}`);
   const body = Object.entries(value).map(([key, item]) => {
-    if (typeof item === 'object') return rule(key, item);
+    if (typeof item === 'object') return Object.keys(item).length || !key.startsWith('@apply') ? rule(key, item) : `${key};`;
     if (typeof item !== 'string' && typeof item !== 'number') throw new Error(`Invalid CSS value: ${key}`);
     return `${key}: ${item};`;
   }).join('\n');
   return `${selector} {\n${body.split('\n').map(line => '  ' + line).join('\n')}\n}`;
 }
 
-export function renderTheme(theme) {
-  if (theme.name !== 'theme' || theme.type !== 'registry:theme') throw new Error('Expected the ui.zyx.tw theme registry item');
-  const sections = ['/* Generated from https://ui.zyx.tw/r/theme.json. Run npm run theme:sync. */'];
-  for (const [mode, vars] of Object.entries(theme.cssVars ?? {})) {
-    const selector = { light: ':root', dark: '.dark', theme: '@theme inline' }[mode];
-    if (!selector) throw new Error(`Unsupported theme mode: ${mode}`);
-    sections.push(rule(selector, Object.fromEntries(Object.entries(vars).map(([key, value]) => [`--${key}`, value]))));
+const vars = values => Object.fromEntries(Object.entries(values).map(([key, value]) => [`--${key}`, value]));
+
+// shadcn writes a --color-* alias for every color variable of a base; the
+// serializer does the same so bg-background and friends exist.
+export function renderTheme(base, extra = []) {
+  if (base.name !== 'base' || base.type !== 'registry:base') throw new Error('Expected the ui.zyx.tw base registry item');
+  const { theme = {}, light = {}, dark = {} } = base.cssVars ?? {};
+  for (const mode of Object.keys(base.cssVars ?? {})) if (!['theme', 'light', 'dark'].includes(mode)) throw new Error(`Unsupported theme mode: ${mode}`);
+  const colors = [...new Set([...Object.keys(light), ...Object.keys(dark)])].filter(key => key !== 'radius');
+  const imports = [];
+  const rules = [];
+  for (const item of [base, ...extra]) {
+    for (const [selector, value] of Object.entries(item.css ?? {})) {
+      if (selector.startsWith('@import ')) imports.push(`${selector};`);
+      else rules.push(rule(selector, value));
+    }
   }
-  for (const [selector, value] of Object.entries(theme.css ?? {})) sections.push(rule(selector, value));
-  return sections.join('\n\n') + '\n';
+  return [
+    '/* Generated from https://ui.zyx.tw/r/base.json and corners.json. Run npm run theme:sync. */',
+    ...imports,
+    rule('@theme inline', { ...vars(theme), ...Object.fromEntries(colors.map(key => [`--color-${key}`, `var(--${key})`])) }),
+    rule(':root', vars(light)),
+    rule('.dark', vars(dark)),
+    ...rules,
+  ].join('\n\n') + '\n';
+}
+
+async function load(name, files) {
+  if (files[name]) return readFile(resolve(files[name]), 'utf8');
+  const response = await fetch(`${registry}/${name}.json`, { signal: AbortSignal.timeout(15000) });
+  if (!response.ok) throw new Error(`${name}.json fetch failed: ${response.status}`);
+  return response.text();
 }
 
 async function sync() {
   const args = process.argv.slice(2);
-  if (args.length && (args[0] !== '--file' || args.length !== 2)) throw new Error('Usage: sync-theme.mjs [--file theme.json]');
-  let raw;
-  if (args.length) raw = await readFile(resolve(args[1]), 'utf8');
-  else {
-    const response = await fetch(source, { signal: AbortSignal.timeout(15000) });
-    if (!response.ok) throw new Error(`Theme fetch failed: ${response.status}`);
-    raw = await response.text();
+  const files = {};
+  for (let i = 0; i < args.length; i += 2) {
+    const name = { '--base': 'base', '--corners': 'corners' }[args[i]];
+    if (!name || !args[i + 1]) throw new Error('Usage: sync-theme.mjs [--base base.json] [--corners corners.json]');
+    files[name] = args[i + 1];
   }
-  const css = renderTheme(JSON.parse(raw));
-  const sha256 = createHash('sha256').update(raw).digest('hex');
-  await writeFile(new URL('src/zyx-theme.css', root), css);
-  await writeFile(new URL('theme-source.json', root), JSON.stringify({ source, sha256 }, null, 2) + '\n');
-  console.log(`Updated theme from ${source} (${sha256.slice(0, 12)})`);
+  const raw = await Promise.all(items.map(name => load(name, files)));
+  const [base, ...extra] = raw.map(text => JSON.parse(text));
+  await writeFile(new URL('src/zyx-theme.css', root), renderTheme(base, extra));
+  const sources = items.map((name, i) => ({ source: `${registry}/${name}.json`, sha256: createHash('sha256').update(raw[i]).digest('hex') }));
+  await writeFile(new URL('theme-source.json', root), JSON.stringify(sources, null, 2) + '\n');
+  console.log(`Updated the theme from ${items.join(' and ')}`);
 }
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
