@@ -43,8 +43,9 @@ silently replace an existing app's theme.
 - One centered working column with responsive width and room above/below for the
   corners. A comparison or editor may use the wide variant. Avoid surrounding the
   task with a dashboard, sidebar or marketing hero unless the task needs one.
-- Use theme tokens and stock shadcn base-nova components. Add only needed primitives
-  with the shadcn CLI; do not edit components/ui. Base UI uses render, not asChild.
+- Use theme tokens and the ui.zyx.tw components. Add only what the task needs with
+  `npx shadcn@latest add @zyx1121/<name>`; do not edit components/ui or install
+  stock shadcn primitives. Base UI uses render, not asChild.
 - Default dark, with light available. Keep fonts Inter, Noto Sans JP/TC and Geist
   Mono for code. Only 80/24/16/14px are legal (display, titles, body and controls,
   captions), at weight 400, or 500 for titles and headings. Dark/light preference

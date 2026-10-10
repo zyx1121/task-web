@@ -5,8 +5,8 @@ portable plugin.json is canonical; scripts/manifests.mjs generates the Claude
 compatibility manifest. Both hosts load the same skill and starter.
 
 Keep this package focused on personal task presentation and scaffolding. FDE owns
-configured environments and operations. ui.zyx.tw owns theme tokens and additions;
-stock shadcn base-nova owns components/ui. Do not add application-specific data,
+configured environments and operations. ui.zyx.tw owns the tokens and the
+components in components/ui (`@zyx1121/<name>`). Do not add application-specific data,
 accounts, authentication, AI providers, MCP servers or hooks to the starter.
 
 Run installs, builds and tests in the configured development sandbox, not the

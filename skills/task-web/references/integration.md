@@ -1,7 +1,7 @@
 # Integrating the shell
 
 The starter lives at `assets/starter/`, relative to the skill directory.
-It uses React, Tailwind CSS 4, stock shadcn base-nova and the ui.zyx.tw theme.
+It uses React, Tailwind CSS 4 and the ui.zyx.tw base and components.
 `TaskShell` is an app composition, not a registry item or an npm package.
 
 ## New project
@@ -28,9 +28,10 @@ Vite or Next.js dependency. In Next.js, retain the client boundary in TaskShell
 and use the existing root layout, fonts and theme provider. Do not replace an
 application layout, auth guard or global CSS with the starter's equivalents.
 
-Install `tooltip` and, when using the bundled theme control, `button` from stock
-shadcn base-nova. `lib/utils.ts` provides cn. Do not copy or edit older primitive
-implementations to sidestep the current CLI. Fonts belong to the consuming app.
+Install `@zyx1121/tooltip` and, when using the bundled theme control,
+`@zyx1121/button`. Both bring `@zyx1121/utils`, the `cn` that keeps the type
+scale. A Next.js app can install `@zyx1121/corners` instead of copying the
+shell's corners. Fonts belong to the consuming app.
 
 ```tsx
 <TaskShell title="Relay experiment" actions={<TaskActions />} wide>
@@ -45,16 +46,16 @@ when the working surface needs it. No background bars or extra chrome are needed
 ## Registry updates
 
 The registry copies source at installation time. It is not a live dependency.
-Read the current design contract before updating. The starter carries a registry
-serializer to work around the current shadcn theme importer error. In a scaffolded
-project run:
+Read the current design contract before updating. In a scaffolded project run:
 
 ```sh
 npm run theme:sync
-npx shadcn@latest add button tooltip
+npx shadcn@latest add @zyx1121/button @zyx1121/tooltip -o
 ```
 
-Keep style=base-nova (Base UI), respect the project's package manager and inspect the diff
-before accepting a refresh. The tested snapshot's provenance is in
+`theme:sync` writes src/zyx-theme.css from the `base` and `corners` items; it
+exists because the `base` item's fonts are next/font entries that a Vite app
+cannot use. Respect the project's package manager and inspect the diff before
+accepting a refresh. The tested snapshot's provenance is in
 `assets/starter/DESIGN-SOURCE.md`. Update that file when releasing a new snapshot.
 Do not invent a task-shell registry endpoint; the shell belongs to this plugin.

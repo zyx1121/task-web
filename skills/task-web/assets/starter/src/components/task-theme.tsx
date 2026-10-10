@@ -38,7 +38,7 @@ export function TaskThemeProvider({ children }: { children: ReactNode }) {
 export function TaskThemeToggle({ lang = "en" }: { lang?: "en" | "zh-TW" }) {
   const { theme, toggle } = useContext(ThemeContext)
   const label = lang === "zh-TW" ? (theme === "dark" ? "切換淺色" : "切換深色") : (theme === "dark" ? "Switch to light" : "Switch to dark")
-  return <Button type="button" variant="ghost" size="icon-sm" onClick={toggle} aria-label={label} title={label}>
+  return <Button type="button" variant="ghost" size="icon" className="-m-3" onClick={toggle} aria-label={label} title={label}>
     {theme === "dark" ? <Sun aria-hidden /> : <Moon aria-hidden />}
   </Button>
 }
