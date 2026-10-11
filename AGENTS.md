@@ -1,18 +1,25 @@
 # Task Web
 
-Read README.md and skills/task-web/SKILL.md before changing the plugin. The
-portable plugin.json is canonical; scripts/manifests.mjs generates the Claude
-compatibility manifest. Both hosts load the same skill and starter.
+Codex and Claude Code plugin with one skill, `task-web`, that scaffolds and audits personal task pages. Read [README.md](README.md) and [skills/task-web/SKILL.md](skills/task-web/SKILL.md) before you change it.
 
-Keep this package focused on personal task presentation and scaffolding. FDE owns
-configured environments and operations. ui.zyx.tw owns the tokens and the
-components in components/ui (`@zyx1121/<name>`). Do not add application-specific data,
-accounts, authentication, AI providers, MCP servers or hooks to the starter.
+## Rules
 
-Run installs, builds and tests in the configured development sandbox, not the
-author's Mac. Use an isolated directory and port. npm run check validates the
-scaffolder. The starter also requires npm ci and npm run build. Use WebKit for
-browser verification. Commit generated manifests and the starter lockfile.
+- The root `plugin.json` is the source of truth. `scripts/manifests.mjs` generates `.claude-plugin/plugin.json`. Commit the generated manifest and the starter lockfile.
+- Keep the package on personal task pages and scaffolding. FDE owns configured environments and their operations. ui.zyx.tw owns the tokens and the components in `components/ui` (`@zyx1121/<name>`).
+- Do not add app data, accounts, sign-in, AI providers, MCP servers or hooks to the starter.
+- Plugin install never builds and never installs app dependencies.
+- Repository documents and code comments are English.
 
-Use SemVer. After checks and PR merge, tag a release and pin its commit in
-zyx1121/marketplace. Plugin installation never builds or installs app dependencies.
+## Verify
+
+```sh
+npm run check
+node skills/task-web/scripts/create.mjs "$TMP/smoke" --title "Smoke" --lang en
+cd "$TMP/smoke" && npm ci && npm run build && npm run audit -- <preview-url>
+```
+
+Run installs, builds and tests on the sandbox, not on the author's Mac. Use an isolated directory and port. Use WebKit for browser tests.
+
+## Release
+
+Use SemVer. After the PR merges, tag the release and pin its commit in `zyx1121/marketplace`.
