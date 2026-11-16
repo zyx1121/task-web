@@ -29,6 +29,8 @@ test('creates a relocatable starter and safely encodes task metadata', async t =
   assert.equal(lock.packages[''].name, pkg.name);
   assert.equal(lock.name, pkg.name);
   assert.ok(!(await readdir(destination)).includes('node_modules'));
+  const app = await readFile(join(destination, 'src/App.tsx'), 'utf8');
+  assert.ok(!app.includes('TaskThemeToggle'), 'the top right corner starts empty');
 });
 
 test('refuses existing content and directory symlinks without changing them', async t => {

@@ -36,8 +36,9 @@ the starter's DESIGN-SOURCE.md. If the live contract changes, update deliberatel
 through shadcn and verify the result. Do not recreate tokens from a screenshot or
 silently replace an existing app's theme.
 
-- Four fixed corners, 20px inset: zyx mark to www.zyx.tw, task actions at top right,
-  Privacy/Terms at bottom left, copyright at bottom right. Its tip says only zyx.
+- Four fixed corners, 20px inset: zyx mark to www.zyx.tw, task actions at top right
+  (empty by default; an item there is a text link in the corner link style, never an
+  icon button, and the d key switches light and dark), Privacy/Terms at bottom left, copyright at bottom right. Its tip says only zyx.
   Put no transforms on ancestors of the fixed corners. Keep actions short enough
   for mobile; additional task controls belong in the central workspace.
 - One centered working column with responsive width and room above/below for the
