@@ -30,7 +30,11 @@ test('creates a relocatable starter and safely encodes task metadata', async t =
   assert.equal(lock.name, pkg.name);
   assert.ok(!(await readdir(destination)).includes('node_modules'));
   const app = await readFile(join(destination, 'src/App.tsx'), 'utf8');
-  assert.ok(!app.includes('TaskThemeToggle'), 'the top right corner starts empty');
+  assert.ok(app.includes('actions={<TaskThemeToggle'), 'the top right corner holds the theme link');
+  const theme = await readFile(join(destination, 'src/components/task-theme.tsx'), 'utf8');
+  assert.ok(theme.includes('className={cornerLink}'), 'the theme toggle uses the corner link style');
+  assert.ok(!/lucide-react|size="icon"/.test(theme), 'the theme toggle is not an icon button');
+  assert.ok(theme.includes('event.key.toLowerCase() !== "d"'), 'the d key still switches themes');
 });
 
 test('refuses existing content and directory symlinks without changing them', async t => {
