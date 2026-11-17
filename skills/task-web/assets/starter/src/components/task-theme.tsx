@@ -1,8 +1,7 @@
 "use client"
 
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react"
-import { Moon, Sun } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { cornerLink } from "@/components/corners"
 
 type Theme = "dark" | "light"
 const ThemeContext = createContext({ theme: "dark" as Theme, toggle: () => {} })
@@ -37,8 +36,7 @@ export function TaskThemeProvider({ children }: { children: ReactNode }) {
 
 export function TaskThemeToggle({ lang = "en" }: { lang?: "en" | "zh-TW" }) {
   const { theme, toggle } = useContext(ThemeContext)
+  const text = lang === "zh-TW" ? (theme === "dark" ? "淺色" : "深色") : (theme === "dark" ? "Light" : "Dark")
   const label = lang === "zh-TW" ? (theme === "dark" ? "切換淺色" : "切換深色") : (theme === "dark" ? "Switch to light" : "Switch to dark")
-  return <Button type="button" variant="ghost" size="icon" className="-m-3" onClick={toggle} aria-label={label} title={label}>
-    {theme === "dark" ? <Sun aria-hidden /> : <Moon aria-hidden />}
-  </Button>
+  return <button type="button" className={cornerLink} onClick={toggle} aria-label={label} title={`${label} (d)`}>{text}</button>
 }
