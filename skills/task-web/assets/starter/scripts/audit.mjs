@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Measure a rendered page against the zyx contract (ui.zyx.tw DESIGN.md):
-// type scale, the three fixed corners (top right is optional), no sideways scroll, dark first and copy written for
+// type scale, four corners, no sideways scroll, dark first and copy written for
 // the person using the page.
 import { parseArgs } from 'node:util';
 
@@ -85,8 +85,7 @@ function measure({ sizes, weights, inset, notes, suggestion, button }) {
   return {
     type: [...type].map(([key, text]) => `${key} "${text}"`),
     copy: [...copy],
-    // The top-right corner holds optional task actions, so it may stay empty.
-    missing: Object.entries(corners).filter(([at, element]) => !element && at !== 'top-right').map(([at]) => at),
+    missing: Object.entries(corners).filter(([, element]) => !element).map(([at]) => at),
     mark,
     overflow: document.documentElement.scrollWidth > vw + 1 ? wide : [],
   };

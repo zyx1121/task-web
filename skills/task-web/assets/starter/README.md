@@ -19,5 +19,5 @@ The audit needs a Playwright browser once per host: `npx playwright install webk
 Choose a dedicated port on a shared host. Serve dist as static files. Follow the
 parent workspace's deployment workflow; this starter does not deploy itself.
 
-Dark is the initial theme. The corner button or d switches themes. Fonts are
+Dark is the initial theme. The Light/Dark corner link or d switches themes. Fonts are
 self-hosted. See DESIGN-SOURCE.md for provenance and theme refresh instructions.
